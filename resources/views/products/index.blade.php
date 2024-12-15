@@ -26,8 +26,13 @@
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-700">
-                <a href="{{ route('logout') }}" class="block p-2 rounded bg-red-500 hover:bg-red-600 text-center">Logout</a>
-            </div>
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="block w-full p-2 rounded bg-red-500 hover:bg-red-600 text-center">
+                Logout
+        </button>
+    </form>
+</div>
         </aside>
 
         <!-- Main Content -->
@@ -43,42 +48,53 @@
             <!-- Tabel Produk -->
             <table class="w-full border-collapse border border-gray-200 bg-white shadow">
                 <thead class="bg-gray-200">
-                    <tr>
-                        <th class="p-2 border">#</th>
-                        <th class="p-2 border">Nama Produk</th>
-                        <th class="p-2 border">Harga</th>
-                        <th class="p-2 border">Deskripsi</th>
-                        <th class="p-2 border">Dibuat pada</th>
-                        <th class="p-2 border">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($products as $index => $product)
-                        <tr id="product-row-{{ $product->id }}" class="hover:bg-gray-100">
-                            <td class="p-2 border">{{ $index + 1 }}</td>
-                            <td class="p-2 border">{{ $product->name }}</td>
-                            <td class="p-2 border">{{ number_format($product->price, 2) }}</td>
-                            <td class="p-2 border">{{ $product->description }}</td>
-                            <td class="p-2 border">{{ $product->created_at->format('d M Y, H:i') }}</td>
-                            <td class="p-2 border text-center">
-                                <!-- Tombol Edit -->
-                                <button onclick="openEditModal({{ $product }})" class="text-blue-500 hover:text-blue-700">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <!-- Tombol Hapus -->
-                                <button
-                                    class="delete-product text-red-500 hover:text-red-700"
-                                    data-id="{{ $product->id }}">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="p-4 text-center">Belum ada produk yang ditambahkan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
+    <tr>
+        <th class="p-2 border">#</th>
+        <th class="p-2 border">Nama Produk</th>
+        <th class="p-2 border">Kategori</th>
+        <th class="p-2 border">Harga</th>
+        <th class="p-2 border">Deskripsi</th>
+        <th class="p-2 border">Gambar</th>
+        <th class="p-2 border">Dibuat pada</th>
+        <th class="p-2 border">Aksi</th>
+    </tr>
+</thead>
+<tbody>
+    @forelse ($products as $index => $product)
+        <tr id="product-row-{{ $product->id }}" class="hover:bg-gray-100">
+            <td class="p-2 border">{{ $index + 1 }}</td>
+            <td class="p-2 border">{{ $product->name }}</td>
+            <td class="p-2 border">{{ $product->category->name ?? 'Tanpa Kategori' }}</td>
+            <td class="p-2 border">{{ number_format($product->price, 2) }}</td>
+            <td class="p-2 border">{{ $product->description }}</td>
+            <td class="p-2 border text-center">
+                @if ($product->image)
+                    <img src="{{ asset('storage/' . $product->image) }}" alt="Gambar Produk" class="w-16 h-16 object-cover">
+                @else
+                    <span>Tidak Ada Gambar</span>
+                @endif
+            </td>
+            <td class="p-2 border">{{ $product->created_at->format('d M Y, H:i') }}</td>
+            <td class="p-2 border text-center">
+                <!-- Tombol Edit -->
+                <button onclick="openEditModal({{ $product }})" class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+                <!-- Tombol Hapus -->
+                <button
+                    class="delete-product text-red-500 hover:text-red-700"
+                    data-id="{{ $product->id }}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="8" class="p-4 text-center">Belum ada produk yang ditambahkan.</td>
+        </tr>
+    @endforelse
+</tbody>
+
             </table>
         </main>
     </div>
@@ -87,7 +103,7 @@
     <div id="editModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 rounded-lg shadow w-96">
             <h2 class="text-xl font-semibold mb-4">Edit Produk</h2>
-            <form id="editForm" method="POST">
+            <form id="editForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="productId">
@@ -96,12 +112,27 @@
                     <input type="text" id="editProductName" name="name" class="w-full p-2 border rounded">
                 </div>
                 <div class="mb-4">
+                    <label for="editProductCategory" class="block text-gray-700">Kategori</label>
+                    <select id="editProductCategory" name="category_id" class="w-full p-2 border rounded">
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-4">
                     <label for="editProductPrice" class="block text-gray-700">Harga Produk</label>
                     <input type="number" id="editProductPrice" name="price" class="w-full p-2 border rounded">
                 </div>
                 <div class="mb-4">
                     <label for="editProductDescription" class="block text-gray-700">Deskripsi Produk</label>
                     <textarea id="editProductDescription" name="description" class="w-full p-2 border rounded"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="editProductImage" class="block text-gray-700">Gambar Produk</label>
+                    <input type="file" id="editProductImage" name="image" class="w-full p-2 border rounded">
+                    <div class="mt-2">
+                        <img id="editImagePreview" src="" alt="Preview" class="w-32 h-32 object-cover rounded">
+                    </div>
                 </div>
                 <div class="flex justify-end">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-400 text-white rounded mr-2">Batal</button>
@@ -122,6 +153,13 @@
             document.getElementById('editProductName').value = product.name;
             document.getElementById('editProductPrice').value = product.price;
             document.getElementById('editProductDescription').value = product.description;
+            document.getElementById('editProductCategory').value = product.category_id;
+
+            if (product.image) {
+                document.getElementById('editImagePreview').src = `/storage/${product.image}`;
+            } else {
+                document.getElementById('editImagePreview').src = '';
+            }
         }
 
         // Tutup Modal
@@ -146,7 +184,6 @@
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Ya, hapus!',
                     cancelButtonText: 'Batal'
-                    //Ajax Session Login, Proses Ngirim HTTP dengan Format JSON Response
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({

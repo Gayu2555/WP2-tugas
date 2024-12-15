@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Menyeragamkan tinggi card dan grid */
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-image img {
+    width: 100%;
+    object-fit: cover;
+    max-height: 180px;
+}
+
+/* Membuat judul lebih rapi */
+.card-title {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    height: 3rem; /* Atur tinggi untuk teks */
+    overflow: hidden;
+}
+
+/* Badge diskon */
+.badge {
+    font-size: 12px;
+    padding: 5px 8px;
+}

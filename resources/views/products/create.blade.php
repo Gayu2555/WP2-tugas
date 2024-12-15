@@ -69,6 +69,17 @@
                         <textarea name="description" id="productDescription" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" required>{{ old('description') }}</textarea>
                     </div>
                     <div class="mb-4">
+                        <label for="category" class="block text-gray-700 font-medium">Kategori Produk</label>
+                        <select name="category_id" id="category" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                            <option value="" disabled selected>Pilih kategori</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-4">
                         <label for="productImage" class="block text-gray-700 font-medium">Foto Produk</label>
                         <input type="file" name="image" id="productImage" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" accept="image/*">
                     </div>

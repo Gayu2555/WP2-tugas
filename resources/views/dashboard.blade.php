@@ -21,7 +21,6 @@
                     <li><a href="{{ route('products.index') }}" class="block p-4 hover:bg-gray-700">Lihat Product</a></li>
                     <li><a href="{{ route('users.create') }}" class="block p-4 hover:bg-gray-700">Tambah User</a></li>
                      <li><a href="{{ route('users.index') }}" class="block p-4 hover:bg-gray-700">Lihat User</a></li>
-                    <!-- Tambahkan menu lainnya -->
                 </ul>
             </nav>
              <div class="p-4 border-t border-gray-700">
@@ -103,29 +102,24 @@
                 </div>
             </div>
 
-            <!-- Charts (Placeholder) -->
             <div class="grid gap-6 mt-6 lg:grid-cols-2">
                 <div class="p-4 bg-white rounded-lg shadow">
                     <h3 class="text-lg font-semibold">Payments Overview</h3>
-                    <!-- Chart Placeholder -->
                     <canvas id="paymentsChart" class="w-full h-40"></canvas>
                 </div>
                 <div class="p-4 bg-white rounded-lg shadow">
                     <h3 class="text-lg font-semibold">Used Devices</h3>
-                    <!-- Chart Placeholder -->
                     <canvas id="devicesChart" class="w-full h-40"></canvas>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // Payments Chart
         const paymentsCtx = document.getElementById('paymentsChart').getContext('2d');
         new Chart(paymentsCtx, {
             type: 'line',
@@ -141,8 +135,6 @@
             },
             options: {}
         });
-
-        // Devices Chart
         const devicesCtx = document.getElementById('devicesChart').getContext('2d');
         new Chart(devicesCtx, {
             type: 'doughnut',
