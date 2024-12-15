@@ -10,10 +10,19 @@
             <div class="mt-6 flex flex-col lg:flex-row gap-4">
                 <a href="#" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-500">Start Shopping</a>
                 <!-- Tampilkan tombol Join Now hanya jika user belum login -->
-                @if(!session('logged_in'))
-                <button id="joinNowBtn" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800">Join Now</button>
+               <!-- Tombol Join Now, hanya muncul jika user belum login -->
+                @if(!Auth::check())
+                    <button id="joinNowBtn" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800">Join Now</button>
                 @endif
-                
+                <!-- Tombol Logout -->
+                @if(Auth::check())
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-500">
+                            Logout
+                        </button>
+                    </form>
+                @endif
             </div>
               <div class="mt-12 flex justify-around text-center">
                     <div>
@@ -33,21 +42,27 @@
     </div>
    <div id="loginModal" class="hidden fixed z-10 inset-0 bg-black bg-opacity-50 flex justify-center items-center">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
-        <!-- Tombol X untuk menutup modal -->
         <button id="closeButton" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
 
-        <!-- Logo dan Title -->
         <div class="flex flex-col items-center mb-6">
-            <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="w-32 h-32 mb-4 -ml-4">
+            <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="w-32 h-32 mb-4">
             <h2 class="text-2xl font-bold text-gray-800">Login</h2>
         </div>
 
-        <!-- Form Login -->
-        <form id="loginForm" method="POST" action="/login">
+        <!-- Menampilkan pesan error jika ada -->
+        @if ($errors->any())
+            <div class="mb-4 text-red-600 text-sm">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="mb-4">
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" id="email" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg" required>
+                <input type="email" name="email" id="email" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg" required value="{{ old('email') }}">
             </div>
             <div class="mb-4">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
@@ -55,47 +70,50 @@
             </div>
             <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-500">Login</button>
         </form>
-
-        <!-- Cancel Button -->
+        
+        <!-- Tombol Cancel -->
         <button id="closeModal" class="mt-4 w-full text-center text-gray-500 hover:underline">Cancel</button>
-
+        
         <!-- Daftar Sekarang -->
         <div class="mt-2 text-center">
             <p class="text-sm text-gray-600">
                 Tidak punya akun? 
-                <a href="{{ route('') }}" class="text-green-600 hover:underline">Daftar Sekarang</a>
+                <a href="{{ route('ecommerce.register.view') }}" class="text-green-600 hover:underline">Daftar Sekarang</a>
             </p>
         </div>
     </div>
+</div>
 
-    <script>
-    const joinNowBtn = document.getElementById('joinNowBtn');
-    const loginModal = document.getElementById('loginModal');
-    const closeModal = document.getElementById('closeModal');
-    const closeButton = document.getElementById('closeButton');
+<script>
+     document.addEventListener('DOMContentLoaded', () => {
+        const joinNowBtn = document.getElementById('joinNowBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeButton = document.getElementById('closeButton');
 
-    // Membuka modal
-    joinNowBtn?.addEventListener('click', () => {
-        loginModal.classList.remove('hidden');
-    });
-
-    // Menutup modal dengan tombol cancel
-    closeModal?.addEventListener('click', () => {
-        loginModal.classList.add('hidden');
-    });
-
-    // Menutup modal dengan tombol X
-    closeButton?.addEventListener('click', () => {
-        loginModal.classList.add('hidden');
-    });
-
-    // Menutup modal dengan mengklik di luar modal
-    loginModal?.addEventListener('click', (event) => {
-        if (event.target === loginModal) {
-            loginModal.classList.add('hidden');
+        // Menampilkan modal login hanya jika pengguna belum login
+        if (!{{ Auth::check() ? 'true' : 'false' }}) {
+            joinNowBtn?.addEventListener('click', () => {
+                loginModal.classList.remove('hidden');
+            });
         }
+
+        closeModal?.addEventListener('click', () => {
+            loginModal.classList.add('hidden');
+        });
+
+        closeButton?.addEventListener('click', () => {
+            loginModal.classList.add('hidden');
+        });
+
+        loginModal?.addEventListener('click', (event) => {
+            if (event.target === loginModal) {
+                loginModal.classList.add('hidden');
+            }
+        });
     });
-    </script>
+</script>
+
    </div>
    </div>
 </div>

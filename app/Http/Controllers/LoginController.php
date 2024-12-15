@@ -6,64 +6,89 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
-    // Fungsi untuk registrasi
-    public function register(Request $request)
+
+    // Menampilkan form registrasi
+    public function showRegisterForm()
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'alamat' => 'required',
-            'provinsi' => 'required',
-            'kabupaten' => 'required',
-            'kecamatan' => 'required',
-            'desa' => 'required',
-        ]);
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'alamat' => $request->alamat,
-            'provinsi' => $request->provinsi,
-            'kabupaten' => $request->kabupaten,
-            'kecamatan' => $request->kecamatan,
-            'desa' => $request->desa,
-        ]);
-
-        return redirect()->route('eccomerce.register.view')->with('success', 'Registration successful');
+        return view('ecommerce.register'); // Pastikan file view register ada di folder ini
     }
-
 
     // Fungsi untuk login
-    public function login(Request $request)
+    public function showLoginForm()
     {
-        // Validasi data input
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        // Cari user berdasarkan email
-        $user = User::where('email', $request->email)->first();
-
-        // Periksa kredensial login
-        if ($user && Hash::check($request->password, $user->password)) {
-            // Simpan status login ke session
-            session(['logged_in' => true, 'user_name' => $user->name]);
-            return redirect()->back()->with('success', 'Login successful');
-        }
-
-        return redirect()->back()->with('error', 'Invalid email or password');
+        return view('auth.login');
     }
 
-    // Fungsi untuk logout
+    // Menangani proses login
+    public function login(Request $request)
+    {
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('login.view')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Proses autentikasi pengguna
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
+            // Login berhasil
+            return redirect()->intended('/dashboard');  // Atur ke halaman yang sesuai
+        }
+
+        // Jika login gagal
+        return redirect()->route('login.view')
+            ->withErrors(['email' => 'Email atau password salah.'])
+            ->withInput();
+    }
+
+    // Logout
     public function logout()
     {
-        session()->forget(['logged_in', 'user_name']);
-        return redirect()->back()->with('success', 'Logged out successfully');
+        Auth::logout();
+        return redirect()->route('login.view');
+    }
+
+    public function register(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'alamat' => 'required|string',
+            'provinsi' => 'required|string',
+            'kabupaten' => 'required|string',
+            'kecamatan' => 'required|string',
+            'desa' => 'required|string',
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'alamat' => $validatedData['alamat'],
+            'provinsi' => $validatedData['provinsi'],
+            'kabupaten' => $validatedData['kabupaten'],
+            'kecamatan' => $validatedData['kecamatan'],
+            'desa' => $validatedData['desa'],
+        ]);
+
+        if (!$user) {
+            return back()->with('error', 'Terjadi kesalahan saat membuat pengguna.');
+        }
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('home')->with('success', 'Registrasi berhasil! Selamat datang di halaman utama.');
     }
 }

@@ -1,31 +1,51 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuthController; // Untuk Admin
+use App\Http\Controllers\LoginController; // Untuk User
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EcommerceController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [EcommerceController::class, 'index'])->name('home');
-// Halaman login
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+// === Rute untuk User (E-Commerce) ===
 
-// Proses login
+// Halaman utama e-commerce
+Route::get('/', [EcommerceController::class, 'index'])->name('home');
+
+// Registrasi user
+Route::get('/ecommerce/register', [LoginController::class, 'showRegisterForm'])->name('ecommerce.register.view');
+Route::post('/ecommerce/register', [LoginController::class, 'register'])->name('ecommerce.register');
+
+// Login user
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.view');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// Logout user
+Route::post('/ecommerce/logout', [LoginController::class, 'logout'])->name('ecommerce.logout');
+
+// Middleware untuk melindungi rute user e-commerce (jika ada fitur khusus setelah login)
+
+
+// === Rute untuk Admin Dashboard ===
+
+// Halaman login admin
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'processLogin'])->name('process.login');
 
-// Logout
+// Logout admin
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Cek status sesi untuk auto-refresh AJAX
+// Cek status sesi untuk auto-refresh AJAX (khusus admin)
 Route::get('/check-session', [AuthController::class, 'checkSession'])->name('check.session');
 
-// Middleware untuk melindungi rute (hanya akses jika login)
+// Middleware untuk melindungi rute admin
 Route::middleware(['custom.auth'])->group(function () {
-    // Dashboard
+    // Dashboard admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Manajemen Produk
+    // Manajemen Produk (admin)
     Route::prefix('products')->name('products.')->group(function () {
         Route::get('/', [ProductController::class, 'index'])->name('index');
         Route::get('/create', [ProductController::class, 'create'])->name('create');
@@ -35,7 +55,7 @@ Route::middleware(['custom.auth'])->group(function () {
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
     });
 
-    // Manajemen User
+    // Manajemen User (admin)
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('/create', [UserController::class, 'create'])->name('create');

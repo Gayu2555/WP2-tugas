@@ -15,7 +15,7 @@
             <nav class="flex-1">
                 <ul>
                     <li><a href="{{ route('dashboard') }}" class="block p-4 hover:bg-gray-700">Dashboard</a></li>
-                    <li><a href="#" class="block p-4 hover:bg-gray-700">eCommerce</a></li>
+                    <li><a href="{{ route('home') }}" class="block p-4 hover:bg-gray-700">eCommerce</a></li>
                     <li><a href="#" class="block p-4 hover:bg-gray-700">Analytics</a></li>
                     <li><a href="{{ route('products.create') }}" class="block p-4 hover:bg-gray-700">Tambah Produk</a></li>
                     <li><a href="{{ route('products.index') }}" class="block p-4 hover:bg-gray-700">Lihat Product</a></li>
